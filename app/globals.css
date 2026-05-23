@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --bmw-blue: #003399;
+  --bmw-blue-light: #0066CC;
+  --bmw-white: #FFFFFF;
+  --bmw-gray: #F5F5F5;
+  --bmw-gray-dark: #E0E0E0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--bmw-gray);
+  color: #1a1a1a;
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-bmw-blue text-white px-4 py-2 rounded font-semibold text-sm
+           hover:bg-bmw-blue-light transition-colors duration-150
+           disabled:opacity-50 disabled:cursor-not-allowed
+           focus:outline-none focus:ring-2 focus:ring-bmw-blue focus:ring-offset-2;
+  }
+
+  .btn-secondary {
+    @apply bg-white text-bmw-blue border border-bmw-blue px-4 py-2 rounded font-semibold text-sm
+           hover:bg-bmw-gray transition-colors duration-150
+           disabled:opacity-50 disabled:cursor-not-allowed
+           focus:outline-none focus:ring-2 focus:ring-bmw-blue focus:ring-offset-2;
+  }
+
+  .btn-danger {
+    @apply bg-white text-red-600 border border-red-300 px-3 py-1.5 rounded text-sm
+           hover:bg-red-50 transition-colors duration-150
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .card {
+    @apply bg-white rounded-lg border border-bmw-gray-dark shadow-sm;
+  }
+
+  .badge {
+    @apply inline-flex items-center px-2 py-0.5 rounded text-xs font-medium;
+  }
+}

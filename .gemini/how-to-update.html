@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How to Update — Knowledge Base Updater</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f0f12;
+      --bg-card: #161619;
+      --bg-elevated: #1c1c20;
+      --bg-surface: #242428;
+      --border: #2c2c31;
+      --border-strong: #3a3a40;
+      --text: #f4f4f5;
+      --text-muted: #a1a1aa;
+      --text-dim: #71717a;
+      --red: #dc2626;
+      --red-light: rgba(220, 38, 38, 0.12);
+      --red-glow: rgba(220, 38, 38, 0.25);
+      --green: #22c55e;
+      --green-light: rgba(34, 197, 94, 0.12);
+      --amber: #f59e0b;
+      --amber-light: rgba(245, 158, 11, 0.12);
+      --blue: #3b82f6;
+      --blue-light: rgba(59, 130, 246, 0.12);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Header */
+    .header { text-align: center; margin-bottom: 48px; }
+    .header .logo-icon {
+      width: 56px; height: 56px; background: var(--red);
+      border-radius: 16px; display: inline-flex; align-items: center; justify-content: center;
+      font-size: 28px; margin-bottom: 16px;
+      box-shadow: 0 0 30px var(--red-glow), 0 4px 12px rgba(0,0,0,0.4);
+    }
+    .header h1 { font-size: 32px; font-weight: 700; letter-spacing: -0.02em; }
+    .header p { font-size: 16px; color: var(--text-muted); max-width: 520px; margin: 8px auto 0; }
+
+    /* Language toggle */
+    .lang-toggle { display: flex; justify-content: center; gap: 8px; margin-bottom: 36px; }
+    .lang-btn {
+      padding: 8px 22px; border-radius: 10px; border: 1px solid var(--border);
+      font-size: 14px; font-weight: 600; cursor: pointer; background: var(--bg-card);
+      color: var(--text-muted); transition: all 0.2s;
+    }
+    .lang-btn.active {
+      border-color: var(--red); background: var(--red-light); color: var(--red);
+      box-shadow: 0 0 12px var(--red-glow);
+    }
+    .lang-btn:hover { border-color: var(--red); color: var(--red); }
+
+    [data-lang="en"] { display: none; }
+    body.en [data-lang="de"] { display: none; }
+    body.en [data-lang="en"] { display: block; }
+
+    /* Sections */
+    .section { margin-bottom: 36px; }
+    .section-title {
+      display: flex; align-items: center; gap: 12px;
+      font-size: 20px; font-weight: 700; margin-bottom: 14px;
+    }
+    .section-number {
+      width: 32px; height: 32px; background: var(--red);
+      color: white; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; flex-shrink: 0;
+      box-shadow: 0 0 12px var(--red-glow);
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 24px; margin-bottom: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      transition: border-color 0.2s;
+    }
+    .card:hover { border-color: var(--border-strong); }
+    .card p { margin-bottom: 12px; color: var(--text-muted); }
+    .card p:last-child { margin-bottom: 0; }
+    .card strong { color: var(--text); }
+
+    /* Trigger box */
+    .trigger-box {
+      background: var(--red-light); border: 1px solid rgba(220, 38, 38, 0.3);
+      border-radius: 12px; padding: 20px 24px; margin: 16px 0;
+    }
+    .trigger-box h3 {
+      color: var(--red); font-size: 13px; text-transform: uppercase;
+      letter-spacing: 1px; margin-bottom: 12px;
+      display: flex; align-items: center; gap: 8px; font-weight: 700;
+    }
+    .trigger-word {
+      display: inline-block; background: var(--bg-elevated);
+      border: 1px solid rgba(220, 38, 38, 0.3);
+      border-radius: 8px; padding: 6px 14px; margin: 4px 4px 4px 0;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 14px; font-weight: 600; color: #f87171;
+    }
+
+    /* Code blocks */
+    .code-block {
+      background: #0a0a0d; color: #e5e5e5; border-radius: 12px;
+      padding: 16px 20px; font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 13px; margin: 12px 0; overflow-x: auto; line-height: 1.8;
+      border: 1px solid var(--border);
+    }
+    .code-block .comment { color: #52525b; }
+    .code-block .cmd { color: #f87171; }
+    code {
+      background: var(--bg-elevated); padding: 2px 6px; border-radius: 4px;
+      font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.9em;
+      border: 1px solid var(--border);
+    }
+
+    /* Status badges */
+    .status {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 600;
+    }
+    .status.pending { background: var(--amber-light); color: var(--amber); }
+    .status.applied { background: var(--green-light); color: var(--green); }
+
+    /* Flow */
+    .flow { display: flex; flex-direction: column; gap: 0; margin: 20px 0; }
+    .flow-step { display: flex; align-items: center; gap: 16px; padding: 12px 0; }
+    .flow-icon {
+      width: 40px; height: 40px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; flex-shrink: 0;
+    }
+    .flow-arrow { text-align: center; color: var(--text-dim); font-size: 18px; padding-left: 12px; }
+    .flow-step .label { font-weight: 600; font-size: 14px; color: var(--text); }
+    .flow-step .desc { color: var(--text-muted); font-size: 13px; }
+
+    /* Tip & Warning */
+    .tip {
+      background: var(--blue-light); border-left: 3px solid var(--blue);
+      border-radius: 0 12px 12px 0; padding: 16px 20px; margin: 16px 0;
+    }
+    .tip strong { color: var(--blue); }
+    .tip, .tip p { color: var(--text-muted); }
+    .warning {
+      background: var(--red-light); border-left: 3px solid var(--red);
+      border-radius: 0 12px 12px 0; padding: 16px 20px; margin: 16px 0;
+    }
+    .warning strong { color: #f87171; }
+    .warning, .warning p { color: var(--text-muted); }
+
+    /* Demo buttons */
+    .btn-demo {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px; border-radius: 10px; font-size: 13px;
+      font-weight: 600; border: none; cursor: default; margin-right: 8px;
+    }
+    .btn-green { background: var(--green); color: white; }
+    .btn-red { background: var(--red); color: white; }
+
+    /* Footer */
+    .footer {
+      text-align: center; padding-top: 32px;
+      border-top: 1px solid var(--border);
+      color: var(--text-dim); font-size: 13px;
+    }
+
+    /* Lists */
+    ul { padding-left: 20px; margin: 8px 0; }
+    li { margin-bottom: 6px; color: var(--text-muted); }
+    li strong { color: var(--text); }
+    li::marker { color: var(--red); }
+    ol { padding-left: 20px; }
+    ol li { color: var(--text-muted); }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo-icon">🧠</div>
+    <h1>How to Update</h1>
+    <p data-lang="de">Halte deine Claude Code Knowledge Base aktuell — mit offiziellem Changelog und YouTube-Videos.</p>
+    <p data-lang="en">Keep your Claude Code Knowledge Base current — with the official Changelog and YouTube videos.</p>
+  </div>
+
+  <!-- Language Toggle -->
+  <div class="lang-toggle">
+    <button class="lang-btn active" id="btn-de" onclick="setLang('de')">🇩🇪 Deutsch</button>
+    <button class="lang-btn" id="btn-en" onclick="setLang('en')">🇬🇧 English</button>
+  </div>
+
+  <!-- ==================== GERMAN ==================== -->
+
+  <div data-lang="de">
+
+    <!-- Trigger Words -->
+    <div class="section">
+      <div class="section-title"><div class="section-number">🔑</div> Trigger-Wörter</div>
+      <div class="card">
+        <p>Der Updater wird <strong>nur</strong> aktiviert, wenn du eines dieser Schlüsselwörter in Antigravity sagst:</p>
+        <div class="trigger-box">
+          <h3>⚡ Aktivierungs-Befehle</h3>
+          <span class="trigger-word">update knowledge base</span>
+          <span class="trigger-word">update changelog</span>
+          <span class="trigger-word">KB updaten</span>
+        </div>
+        <div class="warning">
+          <strong>⚠️ Wichtig:</strong> In allen anderen Situationen ignorieren sowohl Claude Code als auch Antigravity den Updater-Ordner (<code>changelog-master</code>) komplett. Er stört kein anderes Projekt!
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 1 -->
+    <div class="section">
+      <div class="section-title"><div class="section-number">1</div> Updater starten</div>
+      <div class="card">
+        <p>Sage Antigravity eines der Trigger-Wörter. Es wird dann automatisch den Server starten:</p>
+        <div class="code-block">
+          <span class="comment"># Claude Code startet das für dich, oder manuell:</span><br>
+          <span class="cmd">cd</span> .gemini/changelog-master<br>
+          <span class="cmd">npm run</span> dev:all
+        </div>
+        <p>Antigravity sagt dir dann, dass du im Browser öffnen sollst:</p>
+        <div class="code-block"><span class="cmd">http://localhost:5173</span></div>
+        <div class="tip">
+          <strong>💡 Tipp:</strong> Beim ersten Mal musst du einmalig <code>npm install</code> ausführen und den Gemini API Key in die <code>.env</code> Datei eintragen.
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="section">
+      <div class="section-title"><div class="section-number">2</div> Neue Inhalte einspeisen</div>
+      <div class="card">
+        <p>Im Browser: Klicke auf den Tab <strong>„Knowledge Base"</strong> → <strong>„Ingest URL"</strong></p>
+        <p>Du kannst zwei Arten von Quellen eingeben:</p>
+        <ul>
+          <li>📄 <strong>Changelog / Docs</strong> — z.B. den offiziellen Claude Code Changelog</li>
+          <li>🎥 <strong>YouTube-Videos</strong> — z.B. Tutorials oder Ankündigungen</li>
+        </ul>
+        <p>Die KI analysiert den Inhalt und schlägt passende Updates für deine Knowledge Base vor.</p>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="section">
+      <div class="section-title"><div class="section-number">3</div> Updates prüfen</div>
+      <div class="card">
+        <p>Jeder Vorschlag erscheint im Tab <strong>„Updates"</strong> mit dem Status:</p>
+        <p><span class="status pending">● Pending</span> — Wartet auf dein Review</p>
+        <p>Klicke auf <strong>👁 (Auge)</strong> um den Diff zu sehen: Links das Original, rechts der Vorschlag.</p>
+        <p style="margin-top: 16px;">Dann entscheidest du:</p>
+        <p><span class="btn-demo btn-green">✓ Approve & Apply</span> Übernimmt das Update sofort in die Knowledge Base</p>
+        <p><span class="btn-demo btn-red">✕ Reject</span> Lehnt den Vorschlag ab — nichts passiert</p>
+        <div class="tip">
+          <strong>💡 Kein extra Schritt nötig!</strong> „Approve & Apply" schreibt die Datei direkt in deine lokale Knowledge Base. Kein CLI-Sync erforderlich.
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="section">
+      <div class="section-title"><div class="section-number">4</div> In GitHub pushen (Snapshot Push)</div>
+      <div class="card">
+        <p>Wenn du mit deinen Updates zufrieden bist, nutze den neuen <strong>Git Push Snapshot</strong> Button oben rechts neben den Tabs.</p>
+        <div class="tip" style="margin-top: 12px;">
+          <strong>💡 Wie funktioniert der Login ohne .env?</strong><br>
+          Der Updater greift <em>nativ</em> auf deine lokale MacBook-Git-Konfiguration zurück! Da der <code>changelog-master</code> lokal in deinem Antigravity-Terminal als Child Process läuft, verwendet der `git push` Befehl im Hintergrund einfach deine <strong>bereits vorhandene Github Authentifizierung</strong> (z.B. den SSH Key oder <code>gh auth</code>). Keine extra Tokens nötig!
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="section">
+      <div class="section-title"><div class="section-number">5</div> Fertig — Updater beenden</div>
+      <div class="card">
+        <p>Wenn du fertig bist:</p>
+        <ol>
+          <li>Schließe den Browser-Tab</li>
+          <li>Im Terminal: <strong>Ctrl+C</strong> drücken, um den Server zu stoppen</li>
+        </ol>
+        <p style="margin-top: 12px;">Dein Claude Code Teacher arbeitet jetzt mit dem neuesten Wissen! 🎉</p>
+      </div>
+    </div>
+
+    <!-- Extra: Heartbeat -->
+    <div class="section">
+      <div class="section-title"><div class="section-number">⏱️</div> Neu: Auto-Heartbeat</div>
+      <div class="card">
+        <p>Du musst Changelogs nicht mehr händisch suchen! Im Hintergrund (wenn der Server läuft) überprüft das System in regelmäßigen Abständen automatisch neue Changelogs. Findet es etwas, wird der Inhalt extrahiert und als fertiger Vorschlag im <strong>Updates</strong>-Tab für dich hinterlegt.</p>
+      </div>
+    </div>
+
+    <!-- Flow -->
+    <div class="section">
+      <div class="section-title"><div class="section-number">📊</div> So funktioniert der Flow</div>
+      <div class="card">
+        <div class="flow">
+          <div class="flow-step"><div class="flow-icon" style="background:var(--blue-light);">🌐</div><div><div class="label">URL eingeben</div><div class="desc">Changelog, Docs oder YouTube-Link</div></div></div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step"><div class="flow-icon" style="background:var(--red-light);">🤖</div><div><div class="label">KI analysiert</div><div class="desc">Erkennt was relevant ist und für welche KB-Datei</div></div></div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step"><div class="flow-icon" style="background:var(--amber-light);">📝</div><div><div class="label">Vorschlag erstellt</div><div class="desc">Status: <span class="status pending">Pending</span></div></div></div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step"><div class="flow-icon" style="background:var(--green-light);">👤</div><div><div class="label">Du prüfst & entscheidest</div><div class="desc">Approve & Apply oder Reject</div></div></div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step"><div class="flow-icon" style="background:var(--green-light);">✅</div><div><div class="label">Knowledge Base aktualisiert</div><div class="desc">Status: <span class="status applied">Applied</span></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Safety -->
+    <div class="section">
+      <div class="section-title"><div class="section-number">🛡️</div> Sicherheit & Schutz</div>
+      <div class="card">
+        <ul>
+          <li><strong>Duplikat-Schutz:</strong> Die gleiche URL kann nicht zweimal eingespeist werden</li>
+          <li><strong>Human-in-the-Loop:</strong> Nichts wird ohne dein OK in die KB geschrieben</li>
+          <li><strong>Rückgängig machen:</strong> Falls etwas nicht passt: <code>git checkout -- .gemini/</code></li>
+          <li><strong>Isolation:</strong> Der Updater stört keine anderen Projekte</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== ENGLISH ==================== -->
+
+  <div data-lang="en">
+
+    <!-- Trigger Words -->
+    <div class="section">
+      <div class="section-title"><div class="section-number">🔑</div> Trigger Words</div>
+      <div class="card">
+        <p>The updater is <strong>only</strong> activated when you say one of these keywords in Antigravity:</p>
+        <div class="trigger-box">
+          <h3>⚡ Activation Commands</h3>
+          <span class="trigger-word">update knowledge base</span>
+          <span class="trigger-word">update changelog</span>
+          <span class="trigger-word">KB updaten</span>
+        </div>
+        <div class="warning">
+          <strong>⚠️ Important:</strong> In all other situations, both Claude Code and Antigravity completely ignore the updater folder (<code>changelog-master</code>). It won't interfere with any other project!
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 1 -->
+    <div class="section">
+      <div class="section-title"><div class="section-number">1</div> Start the Updater</div>
+      <div class="card">
+        <p>Say one of the trigger words to Antigravity. It will automatically start the server:</p>
+        <div class="code-block">
+          <span class="comment"># Claude Code does this for you, or manually:</span><br>
+          <span class="cmd">cd</span> .gemini/changelog-master<br>
+          <span class="cmd">npm run</span> dev:all
+        </div>
+        <p>Antigravity will then tell you to open in your browser:</p>
+        <div class="code-block"><span class="cmd">http://localhost:5173</span></div>
+        <div class="tip">
+          <strong>💡 Tip:</strong> On first run, you need to execute <code>npm install</code> once and add your Gemini API Key to the <code>.env</code> file.
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="section">
+      <div class="section-title"><div class="section-number">2</div> Ingest New Content</div>
+      <div class="card">
+        <p>In the browser: Click the <strong>"Knowledge Base"</strong> tab → <strong>"Ingest URL"</strong></p>
+        <p>You can enter two types of sources:</p>
+        <ul>
+          <li>📄 <strong>Changelog / Docs</strong> — e.g. the official Claude Code Changelog</li>
+          <li>🎥 <strong>YouTube Videos</strong> — e.g. tutorials or announcements</li>
+        </ul>
+        <p>The AI analyzes the content and suggests relevant updates for your Knowledge Base.</p>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="section">
+      <div class="section-title"><div class="section-number">3</div> Review Updates</div>
+      <div class="card">
+        <p>Each suggestion appears in the <strong>"Updates"</strong> tab with the status:</p>
+        <p><span class="status pending">● Pending</span> — Waiting for your review</p>
+        <p>Click <strong>👁 (Eye)</strong> to see the diff: Original on the left, suggestion on the right.</p>
+        <p style="margin-top: 16px;">Then you decide:</p>
+        <p><span class="btn-demo btn-green">✓ Approve & Apply</span> Applies the update immediately to your Knowledge Base</p>
+        <p><span class="btn-demo btn-red">✕ Reject</span> Rejects the suggestion — nothing happens</p>
+        <div class="tip">
+          <strong>💡 No extra step needed!</strong> "Approve & Apply" writes the file directly to your local Knowledge Base. No CLI sync required.
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="section">
+      <div class="section-title"><div class="section-number">4</div> Push to GitHub (Snapshot)</div>
+      <div class="card">
+        <p>Once you're satisfied with your applied updates, click the new <strong>Git Push Snapshot</strong> button in the top right, next to the section tabs.</p>
+        <div class="tip" style="margin-top: 12px;">
+          <strong>💡 How does it authenticate without an .env token?</strong><br>
+          The updater acts <em>natively</em> using your local Mac's Git configuration. Because the <code>changelog-master</code> runs locally inside your Antigravity terminal window as a child process, the `git push` command simply piggybacks on your <strong>existing Github authentication</strong> (like your SSH key or <code>gh auth</code>). No extra tokens needed!
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="section">
+      <div class="section-title"><div class="section-number">5</div> Done — Stop the Updater</div>
+      <div class="card">
+        <p>When you're finished:</p>
+        <ol>
+          <li>Close the browser tab</li>
+          <li>In the terminal: Press <strong>Ctrl+C</strong> to stop the server</li>
+        </ol>
+        <p style="margin-top: 12px;">Your Claude Code Teacher now works with the latest knowledge! 🎉</p>
+      </div>
+    </div>
+
+    <!-- Extra: Heartbeat -->
+    <div class="section">
+      <div class="section-title"><div class="section-number">⏱️</div> New: Auto-Heartbeat</div>
+      <div class="card">
+        <p>No need to hunt for changelogs manually anymore! In the background (while the server is running), the system automatically polls for new official changelogs. If new entries are found, they are automatically generated directly into <strong>Updates</strong> tab proposals, waiting for your approval.</p>
+      </div>
+    </div>
+
+    <!-- Flow -->
+    <div class="section">
+      <div class="section-title"><div class="section-number">📊</div> How the Flow Works</div>
+      <div class="card">
+        <div class="flow">
+          <div class="flow-step"><div class="flow-icon" style="background:var(--blue-light);">🌐</div><div><div class="label">Enter URL</div><div class="desc">Changelog, Docs, or YouTube link</div></div></div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step"><div class="flow-icon" style="background:var(--red-light);">🤖</div><div><div class="label">AI Analyzes</div><div class="desc">Identifies what's relevant and which KB file to update</div></div></div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step"><div class="flow-icon" style="background:var(--amber-light);">📝</div><div><div class="label">Suggestion Created</div><div class="desc">Status: <span class="status pending">Pending</span></div></div></div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step"><div class="flow-icon" style="background:var(--green-light);">👤</div><div><div class="label">You Review & Decide</div><div class="desc">Approve & Apply or Reject</div></div></div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step"><div class="flow-icon" style="background:var(--green-light);">✅</div><div><div class="label">Knowledge Base Updated</div><div class="desc">Status: <span class="status applied">Applied</span></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Safety -->
+    <div class="section">
+      <div class="section-title"><div class="section-number">🛡️</div> Safety & Protection</div>
+      <div class="card">
+        <ul>
+          <li><strong>Duplicate Protection:</strong> The same URL cannot be ingested twice</li>
+          <li><strong>Human-in-the-Loop:</strong> Nothing is written to the KB without your approval</li>
+          <li><strong>Undo:</strong> If something doesn't fit: <code>git checkout -- .gemini/</code></li>
+          <li><strong>Isolation:</strong> The updater won't interfere with any other projects</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <p>Antigravity Academy · Knowledge Base Updater · 2026</p>
+  </div>
+
+  <script>
+    function setLang(lang) {
+      document.body.className = lang === 'en' ? 'en' : '';
+      document.getElementById('btn-de').className = 'lang-btn' + (lang === 'de' ? ' active' : '');
+      document.getElementById('btn-en').className = 'lang-btn' + (lang === 'en' ? ' active' : '');
+      localStorage.setItem('howto-lang', lang);
+    }
+    // Restore saved language
+    const saved = localStorage.getItem('howto-lang');
+    if (saved) setLang(saved);
+  </script>
+
+</body>
+</html>
